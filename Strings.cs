@@ -283,6 +283,13 @@ namespace Common
 			return new Guid(bytes);
 		}
 
+		public static Guid ToGuid(this string value)
+		{
+			Guid g;
+			if (Guid.TryParse(value, out g)) return g;
+			return default(Guid);
+		}
+
 		public static Guid? ToGuid(this int? value)
 		{
 			if (value == null)

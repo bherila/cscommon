@@ -5,16 +5,22 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
+using System.Runtime.Caching;
 
 namespace Common
 {
 	public class AzureHelper
 	{
+		public AzureHelper()
+		{
+			_azureStorage = new Lazy<CloudStorageAccount>(() => AzureConfiguration.StorageAccount);
+		}
 
 		public AzureHelper(string connString)
 		{
