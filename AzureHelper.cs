@@ -15,6 +15,9 @@ using System.Runtime.Caching;
 
 namespace Common
 {
+	public static class AzureFunctionHelper
+	{
+	}
 	public class AzureHelper
 	{
 		public AzureHelper()
