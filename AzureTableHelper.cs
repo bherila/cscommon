@@ -34,14 +34,14 @@ namespace Common
 			return tbl.ExecuteQuery(query(tbl.CreateQuery<T>()));
 		}
 
-		public static async Task<T> GetAsync(string partitionKey, string rowKey)
+		public static T Get(string partitionKey, string rowKey)
 		{
 			var tbl = new T().GetCloudTable();
 			try
 			{
 				var query = TableOperation.Retrieve<T>(partitionKey, rowKey);
-				var result = tbl.ExecuteAsync(query);
-				var item = (T) (await result).Result;
+				var result = tbl.Execute(query);
+				var item = (T) result.Result;
 				return item;
 			}
 			catch (WebException we)
@@ -62,11 +62,11 @@ namespace Common
 			return await tbl.ExecuteAsync(query);
 		}
 
-		public static async Task<TableResult> InsertAsync(T item)
+		public static TableResult Insert(T item)
 		{
 			var tbl = item.GetCloudTable();
 			var query = TableOperation.Insert(item);
-			return await tbl.ExecuteAsync(query);
+			return tbl.Execute(query);
 		}
 	}
 }
