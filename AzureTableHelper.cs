@@ -61,5 +61,12 @@ namespace Common
 			var query = TableOperation.InsertOrReplace(item);
 			return await tbl.ExecuteAsync(query);
 		}
+
+		public static async Task<TableResult> InsertAsync(T item)
+		{
+			var tbl = item.GetCloudTable();
+			var query = TableOperation.Insert(item);
+			return await tbl.ExecuteAsync(query);
+		}
 	}
 }
