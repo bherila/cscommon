@@ -12,6 +12,7 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Table;
 using System.Runtime.Caching;
+using Nito.AsyncEx;
 
 namespace Common
 {
@@ -116,7 +117,7 @@ namespace Common
 			return null;
 		}
 
-		public byte[] ToByteArray(System.Web.HttpPostedFileBase value)
+		public byte[] ToByteArray(/*System.Web.HttpPostedFileBase*/dynamic value)
 		{
 			if (value == null)
 				return null;
@@ -164,7 +165,7 @@ namespace Common
 			CloudBlockBlob blockBlob = container.GetBlockBlobReference(filename);
 
 			// Create or overwrite the "myblob" blob with contents from a local file.
-			blockBlob.UploadFromStream(data);
+			AsyncContext.Run(() => blockBlob.UploadFromStreamAsync(data));
 			var imageUrl = "https://ucassets.blob.core.windows.net/" + myContainer + "/" + filename;
 			return imageUrl;
 		}
