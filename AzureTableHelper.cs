@@ -5,15 +5,26 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 using ServiceStack;
 using System.Linq;
+using Nito.AsyncEx;
 
 namespace Common
 {
 	public static class AzureTableHelper<T> where T : TableEntityExt, new()
 	{
+		public static List<T> ExecuteQuery<T>(CloudTable table, TableQuery<T> query) where T : ITableEntity, new()
+		{
+			TableContinuationToken continuationToken = null;
+
+			TableQuerySegment<T> tableQueryResult =
+				AsyncContext.Run(() => table.ExecuteQuerySegmentedAsync(query, continuationToken));
+
+			return tableQueryResult.ToList();
+		}
+
 		public static List<T> LoadEverything()
 		{
 			var query = new TableQuery<T>();
-			return new T().GetCloudTable().ExecuteQuery(query).ToList();
+			return ExecuteQuery(new T().GetCloudTable(), query).ToList();
 		}
 
 		public static List<T> LoadPartition(string partitionKey)
@@ -25,13 +36,13 @@ namespace Common
 					partitionKey
 				)
 			);
-			return new T().GetCloudTable().ExecuteQuery(query).ToList();
+			return ExecuteQuery(new T().GetCloudTable(), (query));
 		}
 
 		public static IEnumerable<T> Query(Func<TableQuery<T>, TableQuery<T>> query)
 		{
 			var tbl = new T().GetCloudTable();
-			return tbl.ExecuteQuery(query(tbl.CreateQuery<T>()));
+			return ExecuteQuery(tbl, query(new TableQuery<T>()));
 		}
 
 		public static T Get(string partitionKey, string rowKey)
@@ -40,7 +51,7 @@ namespace Common
 			try
 			{
 				var query = TableOperation.Retrieve<T>(partitionKey, rowKey);
-				var result = tbl.Execute(query);
+				TableResult result = AsyncContext.Run(() => tbl.ExecuteAsync(query));
 				var item = (T) result.Result;
 				return item;
 			}
@@ -59,7 +70,7 @@ namespace Common
 		{
 			var tbl = item.GetCloudTable();
 			var query = TableOperation.InsertOrReplace(item);
-			return tbl.Execute(query);
+			return AsyncContext.Run(() => tbl.ExecuteAsync(query));
 		}
 
 		public static async Task<TableResult> SetAsync(T item)
@@ -73,7 +84,7 @@ namespace Common
 		{
 			var tbl = item.GetCloudTable();
 			var query = TableOperation.Insert(item);
-			return tbl.Execute(query);
+			return AsyncContext.Run(() => tbl.ExecuteAsync(query));
 		}
 	}
 }
