@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace UCMidtier.Extensions
+namespace Common
 {
     public static class DateExtensions
     {
