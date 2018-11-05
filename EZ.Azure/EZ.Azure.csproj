@@ -14,6 +14,6 @@
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\cscommon\EZ.Base.csproj" />
+    <ProjectReference Include="..\EZ.Base\EZ.Base.csproj" />
   </ItemGroup>
 </Project>
