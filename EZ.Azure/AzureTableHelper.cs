@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 using ServiceStack;
 using System.Linq;
+using Microsoft.WindowsAzure.Storage;
 using Nito.AsyncEx;
 
 namespace Common
@@ -23,8 +24,16 @@ namespace Common
 
 		public static List<T> LoadEverything()
 		{
-			var query = new TableQuery<T>();
-			return ExecuteQuery(new T().GetCloudTable(), query).ToList();
+			try {
+				var query = new TableQuery<T>();
+				return ExecuteQuery(new T().GetCloudTable(), query).ToList();
+			} catch (StorageException) {
+				var storageAccount = AzureConfiguration.StorageAccount;
+				var tblClient = storageAccount.CreateCloudTableClient();
+				var tbl = tblClient.GetTableReference(new T().TableName);
+				AsyncContext.Run(() => tbl.CreateIfNotExistsAsync());
+				return new List<T>();
+			}
 		}
 
 		public static List<T> LoadPartition(string partitionKey)

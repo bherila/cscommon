@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
 
 namespace Common
 {
 	public abstract class TableEntityExt : TableEntity
 	{
+		[JsonIgnore, IgnoreProperty]
 		public abstract string TableName { get; }
 
 		public CloudTable GetCloudTable()
