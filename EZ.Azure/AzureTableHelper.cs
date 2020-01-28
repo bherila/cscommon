@@ -22,11 +22,26 @@ namespace Common
 			return tableQueryResult.ToList();
 		}
 
-		public static List<T> LoadEverything()
+        public static IEnumerable<T> EnumerateEverything()
+        {
+            var table = new T().GetCloudTable();
+            TableContinuationToken token = null;
+            do
+            {
+                var q = new TableQuery<T>();
+                var queryResult = Task.Run(() => table.ExecuteQuerySegmentedAsync(q, token)).GetAwaiter().GetResult();
+                foreach (var item in queryResult.Results)
+                {
+                    yield return item;
+                }
+                token = queryResult.ContinuationToken;
+            } while (token != null);
+        }
+
+        public static List<T> LoadEverything()
 		{
 			try {
-				var query = new TableQuery<T>();
-				return ExecuteQuery(new T().GetCloudTable(), query).ToList();
+                return EnumerateEverything().ToList();
 			} catch (StorageException) {
 				var storageAccount = AzureConfiguration.StorageAccount;
 				var tblClient = storageAccount.CreateCloudTableClient();
